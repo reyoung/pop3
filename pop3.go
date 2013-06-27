@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"net/mail"
 	"strconv"
 	"strings"
 	"time"
@@ -17,6 +18,7 @@ type ListItem struct {
 
 type Mail struct {
 	RawMessage []byte
+	Message    *mail.Message
 	UID        []byte
 }
 
@@ -240,7 +242,12 @@ func (c *Client) GetMail(id int) (*Mail, error) {
 	if err != nil {
 		return nil, err
 	} else {
-		return &Mail{raw_msg, uid}, nil
+		msg, err := mail.ReadMessage(bytes.NewReader(raw_msg))
+		if err != nil {
+			return nil, err
+		}
+
+		return &Mail{raw_msg, msg, uid}, nil
 	}
 }
 
